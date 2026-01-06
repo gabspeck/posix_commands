@@ -21,6 +21,10 @@ int main(int argc, char **argv) {
         }
     }
 
+    if (unbuffered) {
+        setbuf(stdout, NULL);
+    }
+
     for (; argi < argc; argi++) {
         char *filename = argv[argi];
         FILE *f = fopen(filename, "r");

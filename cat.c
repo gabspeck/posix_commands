@@ -28,16 +28,23 @@ int main(int argc, char **argv) {
             perror(filename);
             continue;
         }
-        char buf[512];
-        while (!feof(f)) {
-            const size_t len = fread(buf, 1, 50, f);
-            if (ferror(f)) {
-                perror(filename);
+        unsigned char buf[BUFSIZ];
+        while (true) {
+            const size_t len = fread(buf, 1, sizeof buf, f);
+            if (len > 0) {
+                if (fwrite(buf, 1, len, stdout) != len) {
+                    perror("stdout");
+                    break;
+                }
+            }
+            if (len < sizeof buf) {
+                if (ferror(f)) {
+                    perror(filename);
+                }
                 break;
             }
-            fwrite(buf, 1, len, stdout);
         }
-        if (fclose(f)) {
+        if (fclose(f) != 0) {
             fprintf(stderr, "error closing %s: %s\n", filename, strerror(errno));
         };
     }
